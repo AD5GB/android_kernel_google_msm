@@ -563,7 +563,9 @@ void page_unlock_anon_vma(struct anon_vma *anon_vma)
  * Returns virtual address or -EFAULT if page's index/offset is not
  * within the range mapped the @vma.
  */
-/* inline unsigned long */
+/* RDD - is_vm_hugetlb_page() is static...
+inline unsigned long
+*/
 unsigned long
 vma_address(struct page *page, struct vm_area_struct *vma)
 {
@@ -755,6 +757,12 @@ int page_referenced_one(struct page *page, struct vm_area_struct *vma,
 		}
 		pte_unmap_unlock(pte, ptl);
 	}
+
+	/* Pretend the page is referenced if the task has the
+	   swap token and is in the middle of a page fault. */
+	if (mm != current->mm && has_swap_token(mm) &&
+			rwsem_is_locked(&mm->mmap_sem))
+		referenced++;
 
 	(*mapcount)--;
 

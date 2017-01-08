@@ -3632,18 +3632,17 @@ tLimMlmRemoveKeyCnf  mlmRemoveKeyCnf;
 
       goto end;
   }
-  else {
+  else
     staIdx = pStaDs->staIndex;
-  }
   
 
 
-    psessionEntry->limMlmState = eLIM_MLM_WT_REMOVE_STA_KEY_STATE;
-    MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, psessionEntry->limMlmState));
+  psessionEntry->limMlmState = eLIM_MLM_WT_REMOVE_STA_KEY_STATE;
+  MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, psessionEntry->limMlmState));
 
-    // Package WDA_REMOVE_STAKEY_REQ message parameters
-    limSendRemoveStaKeyReq( pMac,pMlmRemoveKeyReq,staIdx,psessionEntry);
-    return;
+  // Package WDA_REMOVE_STAKEY_REQ message parameters
+  limSendRemoveStaKeyReq( pMac,pMlmRemoveKeyReq,staIdx,psessionEntry);
+  return;
  
 end:
     limPostSmeRemoveKeyCnf( pMac,
@@ -4371,79 +4370,79 @@ limCompleteMlmScan(tpAniSirGlobal pMac, tSirResultCodes retCode)
 void limProcessMlmAddBAReq( tpAniSirGlobal pMac,
     tANI_U32 *pMsgBuf )
 {
-tSirRetStatus status = eSIR_SUCCESS;
-tpLimMlmAddBAReq pMlmAddBAReq;
-tpLimMlmAddBACnf pMlmAddBACnf;
-  tpPESession     psessionEntry;
-    
-  if(pMsgBuf == NULL)
-  {
-      PELOGE(limLog(pMac, LOGE,FL("Buffer is Pointing to NULL"));)
-           return;
-  }
+	tSirRetStatus status = eSIR_SUCCESS;
+	tpLimMlmAddBAReq pMlmAddBAReq;
+	tpLimMlmAddBACnf pMlmAddBACnf;
+	tpPESession     psessionEntry;
 
-  pMlmAddBAReq = (tpLimMlmAddBAReq) pMsgBuf;
-  if((psessionEntry = peFindSessionBySessionId(pMac,pMlmAddBAReq->sessionId))== NULL)
-  {
-      PELOGE(limLog(pMac, LOGE,
-               FL("session does not exist for given sessionId"));)
-      palFreeMemory( pMac->hHdd, (tANI_U8 *) pMsgBuf );
-      return;
-  }
-  
+	if(pMsgBuf == NULL)
+	{
+		PELOGE(limLog(pMac, LOGE,FL("Buffer is Pointing to NULL"));)
+			return;
+	}
 
-  // Send ADDBA Req over the air
-  status = limSendAddBAReq( pMac, pMlmAddBAReq,psessionEntry);
+	pMlmAddBAReq = (tpLimMlmAddBAReq) pMsgBuf;
+	if((psessionEntry = peFindSessionBySessionId(pMac,pMlmAddBAReq->sessionId))== NULL)
+	{
+		PELOGE(limLog(pMac, LOGE,
+					FL("session does not exist for given sessionId"));)
+			palFreeMemory( pMac->hHdd, (tANI_U8 *) pMsgBuf );
+		return;
+	}
 
-  //
-  // Respond immediately to LIM, only if MLME has not been
-  // successfully able to send WDA_ADDBA_REQ to HAL.
-  // Else, LIM_MLM_ADDBA_CNF will be sent after receiving
-  // ADDBA Rsp from peer entity
-  //
-  if( eSIR_SUCCESS != status )
-  {
-    // Allocate for LIM_MLM_ADDBA_CNF
-    if( eHAL_STATUS_SUCCESS != palAllocateMemory( pMac->hHdd,
-                                     (void **) &pMlmAddBACnf,
-                                     sizeof( tLimMlmAddBACnf )))
-    {
-      limLog( pMac, LOGP,
-          FL("palAllocateMemory failed with error code %d"));
-      palFreeMemory( pMac->hHdd, (tANI_U8 *) pMsgBuf );
-      return;
-    }
-    else
-    {
-        palZeroMemory( pMac->hHdd, (void *) pMlmAddBACnf, sizeof( tLimMlmAddBACnf ));
-        palCopyMemory( pMac->hHdd,
-          (void *) pMlmAddBACnf->peerMacAddr,
-          (void *) pMlmAddBAReq->peerMacAddr,
-          sizeof( tSirMacAddr ));
 
-      pMlmAddBACnf->baDialogToken = pMlmAddBAReq->baDialogToken;
-      pMlmAddBACnf->baTID = pMlmAddBAReq->baTID;
-      pMlmAddBACnf->baPolicy = pMlmAddBAReq->baPolicy;
-      pMlmAddBACnf->baBufferSize = pMlmAddBAReq->baBufferSize;
-      pMlmAddBACnf->baTimeout = pMlmAddBAReq->baTimeout;
-      pMlmAddBACnf->sessionId = pMlmAddBAReq->sessionId;
+	// Send ADDBA Req over the air
+	status = limSendAddBAReq( pMac, pMlmAddBAReq,psessionEntry);
 
-      // Update the result code
-      pMlmAddBACnf->addBAResultCode = eSIR_MAC_UNSPEC_FAILURE_STATUS;
+	//
+	// Respond immediately to LIM, only if MLME has not been
+	// successfully able to send WDA_ADDBA_REQ to HAL.
+	// Else, LIM_MLM_ADDBA_CNF will be sent after receiving
+	// ADDBA Rsp from peer entity
+	//
+	if( eSIR_SUCCESS != status )
+	{
+		// Allocate for LIM_MLM_ADDBA_CNF
+		if( eHAL_STATUS_SUCCESS != palAllocateMemory( pMac->hHdd,
+					(void **) &pMlmAddBACnf,
+					sizeof( tLimMlmAddBACnf )))
+		{
+			limLog( pMac, LOGP,
+					FL("palAllocateMemory failed with error code %d"));
+			palFreeMemory( pMac->hHdd, (tANI_U8 *) pMsgBuf );
+			return;
+		}
+		else
+		{
+			palZeroMemory( pMac->hHdd, (void *) pMlmAddBACnf, sizeof( tLimMlmAddBACnf ));
+			palCopyMemory( pMac->hHdd,
+					(void *) pMlmAddBACnf->peerMacAddr,
+					(void *) pMlmAddBAReq->peerMacAddr,
+					sizeof( tSirMacAddr ));
 
-      limPostSmeMessage( pMac,
-          LIM_MLM_ADDBA_CNF,
-          (tANI_U32 *) pMlmAddBACnf );
-    }
+			pMlmAddBACnf->baDialogToken = pMlmAddBAReq->baDialogToken;
+			pMlmAddBACnf->baTID = pMlmAddBAReq->baTID;
+			pMlmAddBACnf->baPolicy = pMlmAddBAReq->baPolicy;
+			pMlmAddBACnf->baBufferSize = pMlmAddBAReq->baBufferSize;
+			pMlmAddBACnf->baTimeout = pMlmAddBAReq->baTimeout;
+			pMlmAddBACnf->sessionId = pMlmAddBAReq->sessionId;
 
-    // Restore MLME state
-    psessionEntry->limMlmState = psessionEntry->limPrevMlmState;
-    MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, psessionEntry->limMlmState));
+			// Update the result code
+			pMlmAddBACnf->addBAResultCode = eSIR_MAC_UNSPEC_FAILURE_STATUS;
 
-  }
+			limPostSmeMessage( pMac,
+					LIM_MLM_ADDBA_CNF,
+					(tANI_U32 *) pMlmAddBACnf );
+		}
 
-  // Free the buffer allocated for tLimMlmAddBAReq
-  palFreeMemory( pMac->hHdd, (tANI_U8 *) pMsgBuf );
+		// Restore MLME state
+	psessionEntry->limMlmState = psessionEntry->limPrevMlmState;
+	MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, psessionEntry->limMlmState));
+
+	}
+
+	// Free the buffer allocated for tLimMlmAddBAReq
+	palFreeMemory( pMac->hHdd, (tANI_U8 *) pMsgBuf );
 
 }
 

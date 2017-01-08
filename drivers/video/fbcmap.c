@@ -163,30 +163,29 @@ void fb_dealloc_cmap(struct fb_cmap *cmap)
 
 int fb_copy_cmap(const struct fb_cmap *from, struct fb_cmap *to)
 {
-	size_t tooff = 0, fromoff = 0;
-	size_t tosize = 0, fromsize = 0, size = 0;
+	int tooff = 0, fromoff = 0;
+	int size;
+
+	if (!to || !from)
+		return -EINVAL;
 
 	if (to->start > from->start)
 		fromoff = to->start - from->start;
 	else
 		tooff = from->start - to->start;
-	
-	tosize = to->len - tooff;
-	fromsize = from->len - fromoff;
-
-	if((tosize > to->len) || (fromsize > from->len))
+	size = to->len - tooff;
+	if (size > (int) (from->len - fromoff))
+		size = from->len - fromoff;
+	if (size <= 0)
 		return -EINVAL;
-	else
-		size = tosize < fromsize ? tosize : fromsize;
-
-	if(!size)
-		return -EINVAL;
-
 	size *= sizeof(u16);
 
-	memcpy(to->red+tooff, from->red+fromoff, size);
-	memcpy(to->green+tooff, from->green+fromoff, size);
-	memcpy(to->blue+tooff, from->blue+fromoff, size);
+	if (from->red && to->red)
+		memcpy(to->red+tooff, from->red+fromoff, size);
+	if (from->green && to->green)
+		memcpy(to->green+tooff, from->green+fromoff, size);
+	if (from->blue && to->blue)
+		memcpy(to->blue+tooff, from->blue+fromoff, size);
 	if (from->transp && to->transp)
 		memcpy(to->transp+tooff, from->transp+fromoff, size);
 	return 0;
@@ -194,8 +193,11 @@ int fb_copy_cmap(const struct fb_cmap *from, struct fb_cmap *to)
 
 int fb_cmap_to_user(const struct fb_cmap *from, struct fb_cmap_user *to)
 {
-	size_t tooff = 0, fromoff = 0;
-	int size = 0;
+	int tooff = 0, fromoff = 0;
+	int size;
+
+	if (!to || !from || (int)(to->start) < 0)
+		return -EINVAL;
 
 	if (to->start > from->start)
 		fromoff = to->start - from->start;
@@ -210,12 +212,15 @@ int fb_cmap_to_user(const struct fb_cmap *from, struct fb_cmap_user *to)
 		size = from->len - fromoff;
 	size *= sizeof(u16);
 
-	if (copy_to_user(to->red+tooff, from->red+fromoff, size))
-		return -EFAULT;
-	if (copy_to_user(to->green+tooff, from->green+fromoff, size))
-		return -EFAULT;
-	if (copy_to_user(to->blue+tooff, from->blue+fromoff, size))
-		return -EFAULT;
+	if (from->red && to->red)
+		if (copy_to_user(to->red+tooff, from->red+fromoff, size))
+			return -EFAULT;
+	if (from->green && to->green)
+		if (copy_to_user(to->green+tooff, from->green+fromoff, size))
+			return -EFAULT;
+	if (from->blue && to->blue)
+		if (copy_to_user(to->blue+tooff, from->blue+fromoff, size))
+			return -EFAULT;
 	if (from->transp && to->transp)
 		if (copy_to_user(to->transp+tooff, from->transp+fromoff, size))
 			return -EFAULT;
@@ -294,8 +299,8 @@ int fb_set_user_cmap(struct fb_cmap_user *cmap, struct fb_info *info)
 		rc = -ENODEV;
 		goto out;
 	}
-	if (cmap->start < 0 || (!info->fbops->fb_setcolreg &&
-				!info->fbops->fb_setcmap)) {
+	if (!info->fbops->fb_setcolreg &&
+				!info->fbops->fb_setcmap) {
 		rc = -EINVAL;
 		goto out1;
 	}

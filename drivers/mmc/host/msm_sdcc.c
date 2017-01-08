@@ -60,6 +60,7 @@
 
 #include "msm_sdcc.h"
 #include "msm_sdcc_dml.h"
+#include "../core/core.h"
 
 #define DRIVER_NAME "msm-sdcc"
 
@@ -936,7 +937,7 @@ static int msmsdcc_config_dma(struct msmsdcc_host *host, struct mmc_data *data)
 	struct msmsdcc_nc_dmadata *nc;
 	dmov_box *box;
 	uint32_t rows;
-	int n;
+	unsigned int n;
 	int i, err = 0, box_cmd_cnt = 0;
 	struct scatterlist *sg = data->sg;
 	unsigned int len, offset;
@@ -4194,39 +4195,6 @@ void msmsdcc_hw_reset(struct mmc_host *mmc)
 	usleep_range(10000, 12000);
 }
 
-static int msmsdcc_notify_load(struct mmc_host *mmc, enum mmc_load state)
-{
-	int err = 0;
-	unsigned long rate;
-	struct msmsdcc_host *host = mmc_priv(mmc);
-
-	if (IS_ERR_OR_NULL(host->bus_clk))
-		goto out;
-
-	switch (state) {
-	case MMC_LOAD_HIGH:
-		rate = MSMSDCC_BUS_VOTE_MAX_RATE;
-		break;
-	case MMC_LOAD_LOW:
-		rate = MSMSDCC_BUS_VOTE_MIN_RATE;
-		break;
-	default:
-		err = -EINVAL;
-		goto out;
-	}
-
-	if (rate != host->bus_clk_rate) {
-		err = clk_set_rate(host->bus_clk, rate);
-		if (err)
-			pr_err("%s: %s: bus clk set rate %lu Hz err %d\n",
-					mmc_hostname(mmc), __func__, rate, err);
-		else
-			host->bus_clk_rate = rate;
-	}
-out:
-	return err;
-}
-
 static const struct mmc_host_ops msmsdcc_ops = {
 	.enable		= msmsdcc_enable,
 	.disable	= msmsdcc_disable,
@@ -4239,7 +4207,6 @@ static const struct mmc_host_ops msmsdcc_ops = {
 	.start_signal_voltage_switch = msmsdcc_switch_io_voltage,
 	.execute_tuning = msmsdcc_execute_tuning,
 	.hw_reset = msmsdcc_hw_reset,
-	.notify_load = msmsdcc_notify_load,
 };
 
 static unsigned int
@@ -5768,13 +5735,12 @@ msmsdcc_probe(struct platform_device *pdev)
 	host->bus_clk = clk_get(&pdev->dev, "bus_clk");
 	if (!IS_ERR_OR_NULL(host->bus_clk)) {
 		/* Vote for max. clk rate for max. performance */
-		ret = clk_set_rate(host->bus_clk, MSMSDCC_BUS_VOTE_MAX_RATE);
+		ret = clk_set_rate(host->bus_clk, INT_MAX);
 		if (ret)
 			goto bus_clk_put;
 		ret = clk_prepare_enable(host->bus_clk);
 		if (ret)
 			goto bus_clk_put;
-		host->bus_clk_rate = MSMSDCC_BUS_VOTE_MAX_RATE;
 	}
 
 	/*
@@ -5906,7 +5872,6 @@ msmsdcc_probe(struct platform_device *pdev)
 	mmc->caps2 |= MMC_CAP2_SANITIZE;
 	mmc->caps2 |= MMC_CAP2_INIT_BKOPS;
 	mmc->caps2 |= MMC_CAP2_POWEROFF_NOTIFY;
-	mmc->caps2 |= MMC_CAP2_STOP_REQUEST;
 
 	if (plat->nonremovable)
 		mmc->caps |= MMC_CAP_NONREMOVABLE;
@@ -6053,11 +6018,6 @@ msmsdcc_probe(struct platform_device *pdev)
 			(unsigned long)host);
 
 	mmc_add_host(mmc);
-
-	mmc->clk_scaling.up_threshold = 35;
-	mmc->clk_scaling.down_threshold = 5;
-	mmc->clk_scaling.polling_delay_ms = 100;
-	mmc->caps2 |= MMC_CAP2_CLK_SCALE;
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 	host->early_suspend.suspend = msmsdcc_early_suspend;
@@ -6295,6 +6255,21 @@ static int msmsdcc_remove(struct platform_device *pdev)
 	pm_runtime_set_suspended(&(pdev)->dev);
 
 	return 0;
+}
+
+static void msmsdcc_shutdown(struct platform_device *pdev)
+{
+	struct mmc_host *mmc = mmc_get_drvdata(pdev);
+
+	if (!mmc || !mmc->card)
+		return;
+
+	/* only for Kingston eMMC */
+	if (mmc_card_mmc(mmc->card)
+		&& mmc->card->cid.manfid == 0x70)
+		mmc_force_poweroff_notify(mmc);
+
+	return;
 }
 
 #ifdef CONFIG_MSM_SDIO_AL
@@ -6657,6 +6632,7 @@ MODULE_DEVICE_TABLE(of, msmsdcc_dt_match);
 static struct platform_driver msmsdcc_driver = {
 	.probe		= msmsdcc_probe,
 	.remove		= msmsdcc_remove,
+	.shutdown	= msmsdcc_shutdown,
 	.driver		= {
 		.name	= "msm_sdcc",
 		.pm	= &msmsdcc_dev_pm_ops,

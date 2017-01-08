@@ -2438,9 +2438,10 @@ static void slim_change_existing_chans(struct slim_controller *ctrl, int coeff)
 	}
 	for (i = 0; i < len; i++) {
 		struct slim_ich *slc = arr[i];
-		if (slc->state == SLIM_CH_ACTIVE || slc->state == SLIM_CH_SUSPENDED)
+		if (slc->state == SLIM_CH_ACTIVE ||
+			slc->state == SLIM_CH_SUSPENDED)
 			slc->offset = slc->newoff;
-
+		/* RDD - indentation */
 		slc->interval = slc->newintr;
 	}
 }

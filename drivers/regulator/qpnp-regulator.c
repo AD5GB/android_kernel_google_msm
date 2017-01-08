@@ -771,7 +771,7 @@ static int qpnp_regulator_common_enable_time(struct regulator_dev *rdev)
 	return vreg->enable_time;
 }
 
-static const char *const qpnp_print_actions[] = {
+static const char const *qpnp_print_actions[] = {
 	[QPNP_REGULATOR_ACTION_INIT]	= "initial    ",
 	[QPNP_REGULATOR_ACTION_ENABLE]	= "enable     ",
 	[QPNP_REGULATOR_ACTION_DISABLE]	= "disable    ",

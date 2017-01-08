@@ -726,13 +726,13 @@ static struct ctl_table ipv4_table[] = {
 		.extra1		= &zero
 	},
 	{
-		.procname       = "tcp_delack_seg",
-		.data           = &sysctl_tcp_delack_seg,
-		.maxlen         = sizeof(sysctl_tcp_delack_seg),
-		.mode           = 0644,
-		.proc_handler   = tcp_proc_delayed_ack_control,
-		.extra1         = &tcp_delack_seg_min,
-		.extra2         = &tcp_delack_seg_max,
+		.procname	= "tcp_delack_seg",
+		.data		= &sysctl_tcp_delack_seg,
+		.maxlen		= sizeof(sysctl_tcp_delack_seg),
+		.mode		= 0644,
+		.proc_handler = tcp_proc_delayed_ack_control,
+		.extra1		= &tcp_delack_seg_min,
+		.extra2		= &tcp_delack_seg_max,
 	},
 	{
 		.procname       = "tcp_use_userconfig",
@@ -740,8 +740,8 @@ static struct ctl_table ipv4_table[] = {
 		.maxlen         = sizeof(sysctl_tcp_use_userconfig),
 		.mode           = 0644,
 		.proc_handler   = tcp_use_userconfig_sysctl_handler,
-		.extra1         = &tcp_use_userconfig_min,
-		.extra2         = &tcp_use_userconfig_max,
+		.extra1		    = &tcp_use_userconfig_min,
+		.extra2		    = &tcp_use_userconfig_max,
 	},
 
 	{ }

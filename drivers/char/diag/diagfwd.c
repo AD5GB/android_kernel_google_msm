@@ -1564,13 +1564,11 @@ void diagfwd_init(void)
 	    && (driver->hdlc_buf = kzalloc(HDLC_MAX, GFP_KERNEL)) == NULL)
 		goto err;
 	kmemleak_not_leak(driver->hdlc_buf);
-	if (driver->user_space_data == NULL) {
+	if (driver->user_space_data == NULL)
 		driver->user_space_data = kzalloc(USER_SPACE_DATA, GFP_KERNEL);
-	}
-
+	/* RDD - indentation */
 	if (driver->user_space_data == NULL)
 		goto err;
-
 	kmemleak_not_leak(driver->user_space_data);
 	if (driver->client_map == NULL &&
 	    (driver->client_map = kzalloc

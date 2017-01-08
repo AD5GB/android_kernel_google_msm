@@ -156,44 +156,42 @@ static tANI_U8
 __limFreshScanReqd(tpAniSirGlobal pMac, tANI_U8 returnFreshResults)
 {
 
-    tANI_U8 validState = TRUE;
-    int i;
+	tANI_U8 validState = TRUE;
+	int i;
 
-    if(pMac->lim.gLimSmeState != eLIM_SME_IDLE_STATE)
-    {
-        return FALSE;
-    }
-    for(i =0; i < pMac->lim.maxBssId; i++)
-    {
-
-        if(pMac->lim.gpSession[i].valid == TRUE)
-        {
-            if(!( ( (  (pMac->lim.gpSession[i].bssType == eSIR_INFRASTRUCTURE_MODE) ||
-                        (pMac->lim.gpSession[i].limSystemRole == eLIM_BT_AMP_STA_ROLE))&&
-                       (pMac->lim.gpSession[i].limSmeState == eLIM_SME_LINK_EST_STATE) )||
-                  
-                  (    ( (pMac->lim.gpSession[i].bssType == eSIR_IBSS_MODE)||
-                           (pMac->lim.gpSession[i].limSystemRole == eLIM_BT_AMP_AP_ROLE)||
-                           (pMac->lim.gpSession[i].limSystemRole == eLIM_BT_AMP_STA_ROLE) )&&
-                       (pMac->lim.gpSession[i].limSmeState == eLIM_SME_NORMAL_STATE) )
-               ||  ( ( ( (pMac->lim.gpSession[i].bssType == eSIR_INFRA_AP_MODE) 
-                      && ( pMac->lim.gpSession[i].pePersona == VOS_P2P_GO_MODE) )
-                    || (pMac->lim.gpSession[i].limSystemRole == eLIM_AP_ROLE) )
-                  && (pMac->lim.gpSession[i].limSmeState == eLIM_SME_NORMAL_STATE) )
-             ))
-                {
-                validState = FALSE;
-                break;
-              }
-            
-        }
-    }
-    PELOG1(limLog(pMac, LOG1, FL("FreshScanReqd: %d "), validState);)
-
-   if( (validState) && (returnFreshResults & SIR_BG_SCAN_RETURN_FRESH_RESULTS))
+	if(pMac->lim.gLimSmeState != eLIM_SME_IDLE_STATE)
 	{
-   	return TRUE;
+		return FALSE;
 	}
+	for(i =0; i < pMac->lim.maxBssId; i++)
+	{
+
+		if(pMac->lim.gpSession[i].valid == TRUE)
+		{
+			if(!( ( (  (pMac->lim.gpSession[i].bssType == eSIR_INFRASTRUCTURE_MODE) ||
+								(pMac->lim.gpSession[i].limSystemRole == eLIM_BT_AMP_STA_ROLE))&&
+							(pMac->lim.gpSession[i].limSmeState == eLIM_SME_LINK_EST_STATE) )||
+
+						(    ( (pMac->lim.gpSession[i].bssType == eSIR_IBSS_MODE)||
+								 (pMac->lim.gpSession[i].limSystemRole == eLIM_BT_AMP_AP_ROLE)||
+								 (pMac->lim.gpSession[i].limSystemRole == eLIM_BT_AMP_STA_ROLE) )&&
+							  (pMac->lim.gpSession[i].limSmeState == eLIM_SME_NORMAL_STATE) )
+						||  ( ( ( (pMac->lim.gpSession[i].bssType == eSIR_INFRA_AP_MODE) 
+									&& ( pMac->lim.gpSession[i].pePersona == VOS_P2P_GO_MODE) )
+								|| (pMac->lim.gpSession[i].limSystemRole == eLIM_AP_ROLE) )
+							&& (pMac->lim.gpSession[i].limSmeState == eLIM_SME_NORMAL_STATE) )
+				 ))
+			{
+				validState = FALSE;
+				break;
+			}
+
+		}
+	}
+	PELOG1(limLog(pMac, LOG1, FL("FreshScanReqd: %d "), validState);)
+
+		if( (validState) && (returnFreshResults & SIR_BG_SCAN_RETURN_FRESH_RESULTS))
+			return TRUE;
 
 	return FALSE;
 }

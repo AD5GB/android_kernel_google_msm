@@ -1626,7 +1626,7 @@ static int do_loopback(struct path *path, const char *old_name,
 
 	err = -EINVAL;
 	if (mnt_ns_loop(&old_path))
-		goto out; 
+		goto out;
 
 	err = lock_mount(path);
 	if (err)
@@ -2419,9 +2419,9 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 		char __user *, type, unsigned long, flags, void __user *, data)
 {
 	int ret;
-	char *kernel_type = NULL;
-	char *kernel_dir = NULL;
-	char *kernel_dev = NULL;
+	char *kernel_type = NULL; /* RDD - Initialization */
+	char *kernel_dir;
+	char *kernel_dev = NULL; /* RDD - Initialization */
 	unsigned long data_page;
 
 	ret = copy_mount_string(type, &kernel_type);

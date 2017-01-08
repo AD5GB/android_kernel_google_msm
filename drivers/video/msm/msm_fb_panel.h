@@ -178,8 +178,6 @@ struct msm_panel_info {
 	struct lcdc_panel_info lcdc;
 	struct mipi_panel_info mipi;
 	struct lvds_panel_info lvds;
-	__u32 xres_aligned;
-	__u32 yres_aligned;
 };
 
 #define MSM_FB_SINGLE_MODE_PANEL(pinfo)		\
@@ -209,7 +207,6 @@ struct msm_fb_panel_data {
 					u32 fps_level);
 	int (*low_power_config) (struct platform_device *pdev, int enable);
 
-#ifdef CONFIG_FB_MSM_MIPI_DSI_JDI
 	void (*set_cabc) (struct platform_device *pdev, int level);
 	int (*get_cabc) (struct platform_device *pdev);
 
@@ -218,7 +215,6 @@ struct msm_fb_panel_data {
 
 	void (*set_aco) (struct platform_device *pdev, bool enabled);
 	int (*get_aco) (struct platform_device *pdev);
-#endif
 };
 
 /*===========================================================================

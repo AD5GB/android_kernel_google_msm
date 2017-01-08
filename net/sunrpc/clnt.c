@@ -122,8 +122,8 @@ static void rpc_clnt_remove_pipedir(struct rpc_clnt *clnt)
 }
 
 static struct dentry *rpc_setup_pipedir_sb(struct super_block *sb,
-				    struct rpc_clnt *clnt,
-				    const char *dir_name)
+		struct rpc_clnt *clnt,
+		const char *dir_name)
 {
 	static uint32_t clntid;
 	char name[15];
@@ -155,7 +155,7 @@ static struct dentry *rpc_setup_pipedir_sb(struct super_block *sb,
 	return dentry;
 }
 
-static int
+	static int
 rpc_setup_pipedir(struct rpc_clnt *clnt, const char *dir_name)
 {
 	struct net *net = rpc_net_ns(clnt);
@@ -179,43 +179,43 @@ rpc_setup_pipedir(struct rpc_clnt *clnt, const char *dir_name)
 static inline int rpc_clnt_skip_event(struct rpc_clnt *clnt, unsigned long event)
 {
 	if (((event == RPC_PIPEFS_MOUNT) && clnt->cl_dentry) ||
-	    ((event == RPC_PIPEFS_UMOUNT) && !clnt->cl_dentry))
+			((event == RPC_PIPEFS_UMOUNT) && !clnt->cl_dentry))
 		return 1;
 	return 0;
 }
 
 static int __rpc_clnt_handle_event(struct rpc_clnt *clnt, unsigned long event,
-				   struct super_block *sb)
+		struct super_block *sb)
 {
 	struct dentry *dentry;
 	int err = 0;
 
 	switch (event) {
-	case RPC_PIPEFS_MOUNT:
-		dentry = rpc_setup_pipedir_sb(sb, clnt,
-					      clnt->cl_program->pipe_dir_name);
-		BUG_ON(dentry == NULL);
-		if (IS_ERR(dentry))
-			return PTR_ERR(dentry);
-		clnt->cl_dentry = dentry;
-		if (clnt->cl_auth->au_ops->pipes_create) {
-			err = clnt->cl_auth->au_ops->pipes_create(clnt->cl_auth);
-			if (err)
-				__rpc_clnt_remove_pipedir(clnt);
-		}
-		break;
-	case RPC_PIPEFS_UMOUNT:
-		__rpc_clnt_remove_pipedir(clnt);
-		break;
-	default:
-		printk(KERN_ERR "%s: unknown event: %ld\n", __func__, event);
-		return -ENOTSUPP;
+		case RPC_PIPEFS_MOUNT:
+			dentry = rpc_setup_pipedir_sb(sb, clnt,
+					clnt->cl_program->pipe_dir_name);
+			BUG_ON(dentry == NULL);
+			if (IS_ERR(dentry))
+				return PTR_ERR(dentry);
+			clnt->cl_dentry = dentry;
+			if (clnt->cl_auth->au_ops->pipes_create) {
+				err = clnt->cl_auth->au_ops->pipes_create(clnt->cl_auth);
+				if (err)
+					__rpc_clnt_remove_pipedir(clnt);
+			}
+			break;
+		case RPC_PIPEFS_UMOUNT:
+			__rpc_clnt_remove_pipedir(clnt);
+			break;
+		default:
+			printk(KERN_ERR "%s: unknown event: %ld\n", __func__, event);
+			return -ENOTSUPP;
 	}
 	return err;
 }
 
 static int __rpc_pipefs_event(struct rpc_clnt *clnt, unsigned long event,
-				struct super_block *sb)
+		struct super_block *sb)
 {
 	int error = 0;
 
@@ -249,7 +249,7 @@ static struct rpc_clnt *rpc_get_client_for_event(struct net *net, int event)
 }
 
 static int rpc_pipefs_event(struct notifier_block *nb, unsigned long event,
-			    void *ptr)
+		void *ptr)
 {
 	struct super_block *sb = ptr;
 	struct rpc_clnt *clnt;
@@ -418,30 +418,30 @@ struct rpc_clnt *rpc_create(struct rpc_create_args *args)
 	 */
 	if (xprtargs.servername == NULL) {
 		struct sockaddr_un *sun =
-				(struct sockaddr_un *)args->address;
+			(struct sockaddr_un *)args->address;
 		struct sockaddr_in *sin =
-				(struct sockaddr_in *)args->address;
+			(struct sockaddr_in *)args->address;
 		struct sockaddr_in6 *sin6 =
-				(struct sockaddr_in6 *)args->address;
+			(struct sockaddr_in6 *)args->address;
 
 		servername[0] = '\0';
 		switch (args->address->sa_family) {
-		case AF_LOCAL:
-			snprintf(servername, sizeof(servername), "%s",
-				 sun->sun_path);
-			break;
-		case AF_INET:
-			snprintf(servername, sizeof(servername), "%pI4",
-				 &sin->sin_addr.s_addr);
-			break;
-		case AF_INET6:
-			snprintf(servername, sizeof(servername), "%pI6",
-				 &sin6->sin6_addr);
-			break;
-		default:
-			/* caller wants default server name, but
-			 * address family isn't recognized. */
-			return ERR_PTR(-EINVAL);
+			case AF_LOCAL:
+				snprintf(servername, sizeof(servername), "%s",
+						sun->sun_path);
+				break;
+			case AF_INET:
+				snprintf(servername, sizeof(servername), "%pI4",
+						&sin->sin_addr.s_addr);
+				break;
+			case AF_INET6:
+				snprintf(servername, sizeof(servername), "%pI6",
+						&sin6->sin6_addr);
+				break;
+			default:
+				/* caller wants default server name, but
+				 * address family isn't recognized. */
+				return ERR_PTR(-EINVAL);
 		}
 		xprtargs.servername = servername;
 	}
@@ -492,7 +492,7 @@ EXPORT_SYMBOL_GPL(rpc_create);
  * same transport while varying parameters such as the authentication
  * flavour.
  */
-struct rpc_clnt *
+	struct rpc_clnt *
 rpc_clone_client(struct rpc_clnt *clnt)
 {
 	struct rpc_clnt *new;
@@ -571,7 +571,7 @@ void rpc_killall_tasks(struct rpc_clnt *clnt)
 			rpc_exit(rovr, -EIO);
 			if (RPC_IS_QUEUED(rovr))
 				rpc_wake_up_queued_task(rovr->tk_waitqueue,
-							rovr);
+						rovr);
 		}
 	}
 	spin_unlock(&clnt->cl_lock);
@@ -591,7 +591,7 @@ void rpc_shutdown_client(struct rpc_clnt *clnt)
 	while (!list_empty(&clnt->cl_tasks)) {
 		rpc_killall_tasks(clnt);
 		wait_event_timeout(destroy_wait,
-			list_empty(&clnt->cl_tasks), 1*HZ);
+				list_empty(&clnt->cl_tasks), 1*HZ);
 	}
 
 	rpc_release_client(clnt);
@@ -601,7 +601,7 @@ EXPORT_SYMBOL_GPL(rpc_shutdown_client);
 /*
  * Free an RPC client
  */
-static void
+	static void
 rpc_free_client(struct rpc_clnt *clnt)
 {
 	dprintk_rcu("RPC:       destroying %s client for %s\n",
@@ -622,7 +622,7 @@ rpc_free_client(struct rpc_clnt *clnt)
 /*
  * Free an RPC client
  */
-static void
+	static void
 rpc_free_auth(struct rpc_clnt *clnt)
 {
 	if (clnt->cl_auth == NULL) {
@@ -645,7 +645,7 @@ rpc_free_auth(struct rpc_clnt *clnt)
 /*
  * Release reference to the RPC client
  */
-void
+	void
 rpc_release_client(struct rpc_clnt *clnt)
 {
 	dprintk("RPC:       rpc_release_client(%p)\n", clnt);
@@ -667,8 +667,8 @@ rpc_release_client(struct rpc_clnt *clnt)
  * The Sun NFSv2/v3 ACL protocol can do this.
  */
 struct rpc_clnt *rpc_bind_new_program(struct rpc_clnt *old,
-				      const struct rpc_program *program,
-				      u32 vers)
+		const struct rpc_program *program,
+		u32 vers)
 {
 	struct rpc_clnt *clnt;
 	const struct rpc_version *version;
@@ -710,7 +710,7 @@ void rpc_task_release_client(struct rpc_task *task)
 	}
 }
 
-static
+	static
 void rpc_task_set_client(struct rpc_task *task, struct rpc_clnt *clnt)
 {
 	if (clnt != NULL) {
@@ -734,7 +734,7 @@ void rpc_task_reset_client(struct rpc_task *task, struct rpc_clnt *clnt)
 EXPORT_SYMBOL_GPL(rpc_task_reset_client);
 
 
-static void
+	static void
 rpc_task_set_rpc_message(struct rpc_task *task, const struct rpc_message *msg)
 {
 	if (msg != NULL) {
@@ -749,7 +749,7 @@ rpc_task_set_rpc_message(struct rpc_task *task, const struct rpc_message *msg)
 /*
  * Default callback for async RPC calls
  */
-static void
+	static void
 rpc_default_callback(struct rpc_task *task, void *data)
 {
 }
@@ -819,9 +819,9 @@ EXPORT_SYMBOL_GPL(rpc_call_sync);
  * @tk_ops: RPC call ops
  * @data: user call data
  */
-int
+	int
 rpc_call_async(struct rpc_clnt *clnt, const struct rpc_message *msg, int flags,
-	       const struct rpc_call_ops *tk_ops, void *data)
+		const struct rpc_call_ops *tk_ops, void *data)
 {
 	struct rpc_task	*task;
 	struct rpc_task_setup task_setup_data = {
@@ -848,7 +848,7 @@ EXPORT_SYMBOL_GPL(rpc_call_async);
  * @tk_ops: RPC call ops
  */
 struct rpc_task *rpc_run_bc_task(struct rpc_rqst *req,
-				const struct rpc_call_ops *tk_ops)
+		const struct rpc_call_ops *tk_ops)
 {
 	struct rpc_task *task;
 	struct xdr_buf *xbufp = &req->rq_snd_buf;
@@ -872,7 +872,7 @@ struct rpc_task *rpc_run_bc_task(struct rpc_rqst *req,
 	 * This also indicates that the buffer is XDR encoded already.
 	 */
 	xbufp->len = xbufp->head[0].iov_len + xbufp->page_len +
-			xbufp->tail[0].iov_len;
+		xbufp->tail[0].iov_len;
 
 	task->tk_action = call_bc_transmit;
 	atomic_inc(&task->tk_count);
@@ -885,7 +885,7 @@ out:
 }
 #endif /* CONFIG_SUNRPC_BACKCHANNEL */
 
-void
+	void
 rpc_call_start(struct rpc_task *task)
 {
 	task->tk_action = call_start;
@@ -928,7 +928,7 @@ EXPORT_SYMBOL_GPL(rpc_peeraddr);
  * pointer, it must hold the RCU read lock.
  */
 const char *rpc_peeraddr2str(struct rpc_clnt *clnt,
-			     enum rpc_display_format_t format)
+		enum rpc_display_format_t format)
 {
 	struct rpc_xprt *xprt;
 
@@ -960,32 +960,32 @@ static const struct sockaddr_in6 rpc_in6addr_loopback = {
  * negative errno is returned.
  */
 static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
-			struct sockaddr *buf, int buflen)
+		struct sockaddr *buf, int buflen)
 {
 	struct socket *sock;
 	int err;
 
 	err = __sock_create(net, sap->sa_family,
-				SOCK_DGRAM, IPPROTO_UDP, &sock, 1);
+			SOCK_DGRAM, IPPROTO_UDP, &sock, 1);
 	if (err < 0) {
 		dprintk("RPC:       can't create UDP socket (%d)\n", err);
 		goto out;
 	}
 
 	switch (sap->sa_family) {
-	case AF_INET:
-		err = kernel_bind(sock,
-				(struct sockaddr *)&rpc_inaddr_loopback,
-				sizeof(rpc_inaddr_loopback));
-		break;
-	case AF_INET6:
-		err = kernel_bind(sock,
-				(struct sockaddr *)&rpc_in6addr_loopback,
-				sizeof(rpc_in6addr_loopback));
-		break;
-	default:
-		err = -EAFNOSUPPORT;
-		goto out;
+		case AF_INET:
+			err = kernel_bind(sock,
+					(struct sockaddr *)&rpc_inaddr_loopback,
+					sizeof(rpc_inaddr_loopback));
+			break;
+		case AF_INET6:
+			err = kernel_bind(sock,
+					(struct sockaddr *)&rpc_in6addr_loopback,
+					sizeof(rpc_in6addr_loopback));
+			break;
+		default:
+			err = -EAFNOSUPPORT;
+			goto out;
 	}
 	if (err < 0) {
 		dprintk("RPC:       can't bind UDP socket (%d)\n", err);
@@ -1028,21 +1028,21 @@ out:
 static int rpc_anyaddr(int family, struct sockaddr *buf, size_t buflen)
 {
 	switch (family) {
-	case AF_INET:
-		if (buflen < sizeof(rpc_inaddr_loopback))
-			return -EINVAL;
-		memcpy(buf, &rpc_inaddr_loopback,
-				sizeof(rpc_inaddr_loopback));
-		break;
-	case AF_INET6:
-		if (buflen < sizeof(rpc_in6addr_loopback))
-			return -EINVAL;
-		memcpy(buf, &rpc_in6addr_loopback,
-				sizeof(rpc_in6addr_loopback));
-	default:
-		dprintk("RPC:       %s: address family not supported\n",
-			__func__);
-		return -EAFNOSUPPORT;
+		case AF_INET:
+			if (buflen < sizeof(rpc_inaddr_loopback))
+				return -EINVAL;
+			memcpy(buf, &rpc_inaddr_loopback,
+					sizeof(rpc_inaddr_loopback));
+			break;
+		case AF_INET6:
+			if (buflen < sizeof(rpc_in6addr_loopback))
+				return -EINVAL;
+			memcpy(buf, &rpc_in6addr_loopback,
+					sizeof(rpc_in6addr_loopback));
+		default:
+			dprintk("RPC:       %s: address family not supported\n",
+					__func__);
+			return -EAFNOSUPPORT;
 	}
 	dprintk("RPC:       %s: succeeded\n", __func__);
 	return 0;
@@ -1090,7 +1090,7 @@ int rpc_localaddr(struct rpc_clnt *clnt, struct sockaddr *buf, size_t buflen)
 }
 EXPORT_SYMBOL_GPL(rpc_localaddr);
 
-void
+	void
 rpc_setbufsize(struct rpc_clnt *clnt, unsigned int sndsize, unsigned int rcvsize)
 {
 	struct rpc_xprt *xprt;
@@ -1174,7 +1174,7 @@ EXPORT_SYMBOL_GPL(rpc_force_rebind);
  * Restart an (async) RPC call from the call_prepare state.
  * Usually called from within the exit handler.
  */
-int
+	int
 rpc_restart_call_prepare(struct rpc_task *task)
 {
 	if (RPC_ASSASSINATED(task))
@@ -1190,7 +1190,7 @@ EXPORT_SYMBOL_GPL(rpc_restart_call_prepare);
  * Restart an (async) RPC call. Usually called from within the
  * exit handler.
  */
-int
+	int
 rpc_restart_call(struct rpc_task *task)
 {
 	if (RPC_ASSASSINATED(task))
@@ -1221,7 +1221,7 @@ static const char *rpc_proc_name(const struct rpc_task *task)
  *     Other FSM states can be visited zero or more times, but
  *     this state is visited exactly once for each RPC.
  */
-static void
+	static void
 call_start(struct rpc_task *task)
 {
 	struct rpc_clnt	*clnt = task->tk_client;
@@ -1240,7 +1240,7 @@ call_start(struct rpc_task *task)
 /*
  * 1.	Reserve an RPC call slot
  */
-static void
+	static void
 call_reserve(struct rpc_task *task)
 {
 	dprint_status(task);
@@ -1253,7 +1253,7 @@ call_reserve(struct rpc_task *task)
 /*
  * 1b.	Grok the result of xprt_reserve()
  */
-static void
+	static void
 call_reserveresult(struct rpc_task *task)
 {
 	int status = task->tk_status;
@@ -1288,15 +1288,15 @@ call_reserveresult(struct rpc_task *task)
 	}
 
 	switch (status) {
-	case -EAGAIN:	/* woken up; retry */
-		task->tk_action = call_reserve;
-		return;
-	case -EIO:	/* probably a shutdown */
-		break;
-	default:
-		printk(KERN_ERR "%s: unrecognized error %d, exiting\n",
-				__func__, status);
-		break;
+		case -EAGAIN:	/* woken up; retry */
+			task->tk_action = call_reserve;
+			return;
+		case -EIO:	/* probably a shutdown */
+			break;
+		default:
+			printk(KERN_ERR "%s: unrecognized error %d, exiting\n",
+					__func__, status);
+			break;
 	}
 	rpc_exit(task, status);
 }
@@ -1304,7 +1304,7 @@ call_reserveresult(struct rpc_task *task)
 /*
  * 2.	Bind and/or refresh the credentials
  */
-static void
+	static void
 call_refresh(struct rpc_task *task)
 {
 	dprint_status(task);
@@ -1318,7 +1318,7 @@ call_refresh(struct rpc_task *task)
 /*
  * 2a.	Process the results of a credential refresh
  */
-static void
+	static void
 call_refreshresult(struct rpc_task *task)
 {
 	int status = task->tk_status;
@@ -1328,23 +1328,23 @@ call_refreshresult(struct rpc_task *task)
 	task->tk_status = 0;
 	task->tk_action = call_refresh;
 	switch (status) {
-	case 0:
-		if (rpcauth_uptodatecred(task))
-			task->tk_action = call_allocate;
-		return;
-	case -ETIMEDOUT:
-		rpc_delay(task, 3*HZ);
-	case -EAGAIN:
-		status = -EACCES;
-		if (!task->tk_cred_retry)
-			break;
-		task->tk_cred_retry--;
-		dprintk("RPC: %5u %s: retry refresh creds\n",
-				task->tk_pid, __func__);
-		return;
+		case 0:
+			if (rpcauth_uptodatecred(task))
+				task->tk_action = call_allocate;
+			return;
+		case -ETIMEDOUT:
+			rpc_delay(task, 3*HZ);
+		case -EAGAIN:
+			status = -EACCES;
+			if (!task->tk_cred_retry)
+				break;
+			task->tk_cred_retry--;
+			dprintk("RPC: %5u %s: retry refresh creds\n",
+					task->tk_pid, __func__);
+			return;
 	}
 	dprintk("RPC: %5u %s: refresh creds failed with error %d\n",
-				task->tk_pid, __func__, status);
+			task->tk_pid, __func__, status);
 	rpc_exit(task, status);
 }
 
@@ -1352,7 +1352,7 @@ call_refreshresult(struct rpc_task *task)
  * 2b.	Allocate the buffer. For details, see sched.c:rpc_malloc.
  *	(Note: buffer memory is freed in xprt_release).
  */
-static void
+	static void
 call_allocate(struct rpc_task *task)
 {
 	unsigned int slack = task->tk_rqstp->rq_cred->cr_auth->au_cslack;
@@ -1385,7 +1385,7 @@ call_allocate(struct rpc_task *task)
 	req->rq_rcvsize <<= 2;
 
 	req->rq_buffer = xprt->ops->buf_alloc(task,
-					req->rq_callsize + req->rq_rcvsize);
+			req->rq_callsize + req->rq_rcvsize);
 	if (req->rq_buffer != NULL)
 		return;
 
@@ -1400,20 +1400,20 @@ call_allocate(struct rpc_task *task)
 	rpc_exit(task, -ERESTARTSYS);
 }
 
-static inline int
+	static inline int
 rpc_task_need_encode(struct rpc_task *task)
 {
 	return task->tk_rqstp->rq_snd_buf.len == 0;
 }
 
-static inline void
+	static inline void
 rpc_task_force_reencode(struct rpc_task *task)
 {
 	task->tk_rqstp->rq_snd_buf.len = 0;
 	task->tk_rqstp->rq_bytes_sent = 0;
 }
 
-static inline void
+	static inline void
 rpc_xdr_buf_init(struct xdr_buf *buf, void *start, size_t len)
 {
 	buf->head[0].iov_base = start;
@@ -1428,7 +1428,7 @@ rpc_xdr_buf_init(struct xdr_buf *buf, void *start, size_t len)
 /*
  * 3.	Encode arguments of an RPC call
  */
-static void
+	static void
 rpc_xdr_encode(struct rpc_task *task)
 {
 	struct rpc_rqst	*req = task->tk_rqstp;
@@ -1438,11 +1438,11 @@ rpc_xdr_encode(struct rpc_task *task)
 	dprint_status(task);
 
 	rpc_xdr_buf_init(&req->rq_snd_buf,
-			 req->rq_buffer,
-			 req->rq_callsize);
+			req->rq_buffer,
+			req->rq_callsize);
 	rpc_xdr_buf_init(&req->rq_rcv_buf,
-			 (char *)req->rq_buffer + req->rq_callsize,
-			 req->rq_rcvsize);
+			(char *)req->rq_buffer + req->rq_callsize,
+			req->rq_rcvsize);
 
 	p = rpc_encode_header(task);
 	if (p == NULL) {
@@ -1462,7 +1462,7 @@ rpc_xdr_encode(struct rpc_task *task)
 /*
  * 4.	Get the server port number if not yet set
  */
-static void
+	static void
 call_bind(struct rpc_task *task)
 {
 	struct rpc_xprt *xprt = task->tk_xprt;
@@ -1480,7 +1480,7 @@ call_bind(struct rpc_task *task)
 /*
  * 4a.	Sort out bind result
  */
-static void
+	static void
 call_bind_status(struct rpc_task *task)
 {
 	int status = -EIO;
@@ -1494,56 +1494,56 @@ call_bind_status(struct rpc_task *task)
 
 	trace_rpc_bind_status(task);
 	switch (task->tk_status) {
-	case -ENOMEM:
-		dprintk("RPC: %5u rpcbind out of memory\n", task->tk_pid);
-		rpc_delay(task, HZ >> 2);
-		goto retry_timeout;
-	case -EACCES:
-		dprintk("RPC: %5u remote rpcbind: RPC program/version "
-				"unavailable\n", task->tk_pid);
-		/* fail immediately if this is an RPC ping */
-		if (task->tk_msg.rpc_proc->p_proc == 0) {
-			status = -EOPNOTSUPP;
-			break;
-		}
-		if (task->tk_rebind_retry == 0)
-			break;
-		task->tk_rebind_retry--;
-		rpc_delay(task, 3*HZ);
-		goto retry_timeout;
-	case -ETIMEDOUT:
-		dprintk("RPC: %5u rpcbind request timed out\n",
-				task->tk_pid);
-		goto retry_timeout;
-	case -EPFNOSUPPORT:
-		/* server doesn't support any rpcbind version we know of */
-		dprintk("RPC: %5u unrecognized remote rpcbind service\n",
-				task->tk_pid);
-		break;
-	case -EPROTONOSUPPORT:
-		dprintk("RPC: %5u remote rpcbind version unavailable, retrying\n",
-				task->tk_pid);
-		task->tk_status = 0;
-		task->tk_action = call_bind;
-		return;
-	case -ECONNREFUSED:		/* connection problems */
-	case -ECONNRESET:
-	case -ENOTCONN:
-	case -EHOSTDOWN:
-	case -EHOSTUNREACH:
-	case -ENETUNREACH:
-	case -EPIPE:
-		dprintk("RPC: %5u remote rpcbind unreachable: %d\n",
-				task->tk_pid, task->tk_status);
-		if (!RPC_IS_SOFTCONN(task)) {
-			rpc_delay(task, 5*HZ);
+		case -ENOMEM:
+			dprintk("RPC: %5u rpcbind out of memory\n", task->tk_pid);
+			rpc_delay(task, HZ >> 2);
 			goto retry_timeout;
-		}
-		status = task->tk_status;
-		break;
-	default:
-		dprintk("RPC: %5u unrecognized rpcbind error (%d)\n",
-				task->tk_pid, -task->tk_status);
+		case -EACCES:
+			dprintk("RPC: %5u remote rpcbind: RPC program/version "
+					"unavailable\n", task->tk_pid);
+			/* fail immediately if this is an RPC ping */
+			if (task->tk_msg.rpc_proc->p_proc == 0) {
+				status = -EOPNOTSUPP;
+				break;
+			}
+			if (task->tk_rebind_retry == 0)
+				break;
+			task->tk_rebind_retry--;
+			rpc_delay(task, 3*HZ);
+			goto retry_timeout;
+		case -ETIMEDOUT:
+			dprintk("RPC: %5u rpcbind request timed out\n",
+					task->tk_pid);
+			goto retry_timeout;
+		case -EPFNOSUPPORT:
+			/* server doesn't support any rpcbind version we know of */
+			dprintk("RPC: %5u unrecognized remote rpcbind service\n",
+					task->tk_pid);
+			break;
+		case -EPROTONOSUPPORT:
+			dprintk("RPC: %5u remote rpcbind version unavailable, retrying\n",
+					task->tk_pid);
+			task->tk_status = 0;
+			task->tk_action = call_bind;
+			return;
+		case -ECONNREFUSED:		/* connection problems */
+		case -ECONNRESET:
+		case -ENOTCONN:
+		case -EHOSTDOWN:
+		case -EHOSTUNREACH:
+		case -ENETUNREACH:
+		case -EPIPE:
+			dprintk("RPC: %5u remote rpcbind unreachable: %d\n",
+					task->tk_pid, task->tk_status);
+			if (!RPC_IS_SOFTCONN(task)) {
+				rpc_delay(task, 5*HZ);
+				goto retry_timeout;
+			}
+			status = task->tk_status;
+			break;
+		default:
+			dprintk("RPC: %5u unrecognized rpcbind error (%d)\n",
+					task->tk_pid, -task->tk_status);
 	}
 
 	rpc_exit(task, status);
@@ -1556,7 +1556,7 @@ retry_timeout:
 /*
  * 4b.	Connect to the RPC server
  */
-static void
+	static void
 call_connect(struct rpc_task *task)
 {
 	struct rpc_xprt *xprt = task->tk_xprt;
@@ -1577,7 +1577,7 @@ call_connect(struct rpc_task *task)
 /*
  * 4c.	Sort out connect result
  */
-static void
+	static void
 call_connect_status(struct rpc_task *task)
 {
 	struct rpc_clnt *clnt = task->tk_client;
@@ -1595,18 +1595,18 @@ call_connect_status(struct rpc_task *task)
 	trace_rpc_connect_status(task, status);
 	switch (status) {
 		/* if soft mounted, test if we've timed out */
-	case -ETIMEDOUT:
-		task->tk_action = call_timeout;
-		break;
-	default:
-		rpc_exit(task, -EIO);
+		case -ETIMEDOUT:
+			task->tk_action = call_timeout;
+			break;
+		default:
+			rpc_exit(task, -EIO);
 	}
 }
 
 /*
  * 5.	Transmit the RPC request, and wait for reply
  */
-static void
+	static void
 call_transmit(struct rpc_task *task)
 {
 	dprint_status(task);
@@ -1649,7 +1649,7 @@ call_transmit(struct rpc_task *task)
 /*
  * 5a.	Handle cleanup after a transmission
  */
-static void
+	static void
 call_transmit_status(struct rpc_task *task)
 {
 	task->tk_action = call_status;
@@ -1665,32 +1665,32 @@ call_transmit_status(struct rpc_task *task)
 	}
 
 	switch (task->tk_status) {
-	case -EAGAIN:
-		break;
-	default:
-		dprint_status(task);
-		xprt_end_transmit(task);
-		rpc_task_force_reencode(task);
-		break;
-		/*
-		 * Special cases: if we've been waiting on the
-		 * socket's write_space() callback, or if the
-		 * socket just returned a connection error,
-		 * then hold onto the transport lock.
-		 */
-	case -ECONNREFUSED:
-	case -EHOSTDOWN:
-	case -EHOSTUNREACH:
-	case -ENETUNREACH:
-		if (RPC_IS_SOFTCONN(task)) {
-			xprt_end_transmit(task);
-			rpc_exit(task, task->tk_status);
+		case -EAGAIN:
 			break;
-		}
-	case -ECONNRESET:
-	case -ENOTCONN:
-	case -EPIPE:
-		rpc_task_force_reencode(task);
+		default:
+			dprint_status(task);
+			xprt_end_transmit(task);
+			rpc_task_force_reencode(task);
+			break;
+			/*
+			 * Special cases: if we've been waiting on the
+			 * socket's write_space() callback, or if the
+			 * socket just returned a connection error,
+			 * then hold onto the transport lock.
+			 */
+		case -ECONNREFUSED:
+		case -EHOSTDOWN:
+		case -EHOSTUNREACH:
+		case -ENETUNREACH:
+			if (RPC_IS_SOFTCONN(task)) {
+				xprt_end_transmit(task);
+				rpc_exit(task, task->tk_status);
+				break;
+			}
+		case -ECONNRESET:
+		case -ENOTCONN:
+		case -EPIPE:
+			rpc_task_force_reencode(task);
 	}
 }
 
@@ -1699,7 +1699,7 @@ call_transmit_status(struct rpc_task *task)
  * 5b.	Send the backchannel RPC reply.  On error, drop the reply.  In
  * addition, disconnect on connectivity errors.
  */
-static void
+	static void
 call_bc_transmit(struct rpc_task *task)
 {
 	struct rpc_rqst *req = task->tk_rqstp;
@@ -1719,7 +1719,7 @@ call_bc_transmit(struct rpc_task *task)
 	task->tk_action = rpc_exit_task;
 	if (task->tk_status < 0) {
 		printk(KERN_NOTICE "RPC: Could not send backchannel reply "
-			"error: %d\n", task->tk_status);
+				"error: %d\n", task->tk_status);
 		return;
 	}
 
@@ -1727,34 +1727,34 @@ call_bc_transmit(struct rpc_task *task)
 	xprt_end_transmit(task);
 	dprint_status(task);
 	switch (task->tk_status) {
-	case 0:
-		/* Success */
-		break;
-	case -EHOSTDOWN:
-	case -EHOSTUNREACH:
-	case -ENETUNREACH:
-	case -ETIMEDOUT:
-		/*
-		 * Problem reaching the server.  Disconnect and let the
-		 * forechannel reestablish the connection.  The server will
-		 * have to retransmit the backchannel request and we'll
-		 * reprocess it.  Since these ops are idempotent, there's no
-		 * need to cache our reply at this time.
-		 */
-		printk(KERN_NOTICE "RPC: Could not send backchannel reply "
-			"error: %d\n", task->tk_status);
-		xprt_conditional_disconnect(task->tk_xprt,
-			req->rq_connect_cookie);
-		break;
-	default:
-		/*
-		 * We were unable to reply and will have to drop the
-		 * request.  The server should reconnect and retransmit.
-		 */
-		BUG_ON(task->tk_status == -EAGAIN);
-		printk(KERN_NOTICE "RPC: Could not send backchannel reply "
-			"error: %d\n", task->tk_status);
-		break;
+		case 0:
+			/* Success */
+			break;
+		case -EHOSTDOWN:
+		case -EHOSTUNREACH:
+		case -ENETUNREACH:
+		case -ETIMEDOUT:
+			/*
+			 * Problem reaching the server.  Disconnect and let the
+			 * forechannel reestablish the connection.  The server will
+			 * have to retransmit the backchannel request and we'll
+			 * reprocess it.  Since these ops are idempotent, there's no
+			 * need to cache our reply at this time.
+			 */
+			printk(KERN_NOTICE "RPC: Could not send backchannel reply "
+					"error: %d\n", task->tk_status);
+			xprt_conditional_disconnect(task->tk_xprt,
+					req->rq_connect_cookie);
+			break;
+		default:
+			/*
+			 * We were unable to reply and will have to drop the
+			 * request.  The server should reconnect and retransmit.
+			 */
+			BUG_ON(task->tk_status == -EAGAIN);
+			printk(KERN_NOTICE "RPC: Could not send backchannel reply "
+					"error: %d\n", task->tk_status);
+			break;
 	}
 	rpc_wake_up_queued_task(&req->rq_xprt->pending, task);
 }
@@ -1763,7 +1763,7 @@ call_bc_transmit(struct rpc_task *task)
 /*
  * 6.	Sort out the RPC call status
  */
-static void
+	static void
 call_status(struct rpc_task *task)
 {
 	struct rpc_clnt	*clnt = task->tk_client;
@@ -1784,40 +1784,40 @@ call_status(struct rpc_task *task)
 	trace_rpc_call_status(task);
 	task->tk_status = 0;
 	switch(status) {
-	case -EHOSTDOWN:
-	case -EHOSTUNREACH:
-	case -ENETUNREACH:
-		/*
-		 * Delay any retries for 3 seconds, then handle as if it
-		 * were a timeout.
-		 */
-		rpc_delay(task, 3*HZ);
-	case -ETIMEDOUT:
-		task->tk_action = call_timeout;
-		if (task->tk_client->cl_discrtry)
-			xprt_conditional_disconnect(task->tk_xprt,
-					req->rq_connect_cookie);
-		break;
-	case -ECONNRESET:
-	case -ECONNREFUSED:
-		rpc_force_rebind(clnt);
-		rpc_delay(task, 3*HZ);
-	case -EPIPE:
-	case -ENOTCONN:
-		task->tk_action = call_bind;
-		break;
-	case -EAGAIN:
-		task->tk_action = call_transmit;
-		break;
-	case -EIO:
-		/* shutdown or soft timeout */
-		rpc_exit(task, status);
-		break;
-	default:
-		if (clnt->cl_chatty)
-			printk("%s: RPC call returned error %d\n",
-			       clnt->cl_protname, -status);
-		rpc_exit(task, status);
+		case -EHOSTDOWN:
+		case -EHOSTUNREACH:
+		case -ENETUNREACH:
+			/*
+			 * Delay any retries for 3 seconds, then handle as if it
+			 * were a timeout.
+			 */
+			rpc_delay(task, 3*HZ);
+		case -ETIMEDOUT:
+			task->tk_action = call_timeout;
+			if (task->tk_client->cl_discrtry)
+				xprt_conditional_disconnect(task->tk_xprt,
+						req->rq_connect_cookie);
+			break;
+		case -ECONNRESET:
+		case -ECONNREFUSED:
+			rpc_force_rebind(clnt);
+			rpc_delay(task, 3*HZ);
+		case -EPIPE:
+		case -ENOTCONN:
+			task->tk_action = call_bind;
+			break;
+		case -EAGAIN:
+			task->tk_action = call_transmit;
+			break;
+		case -EIO:
+			/* shutdown or soft timeout */
+			rpc_exit(task, status);
+			break;
+		default:
+			if (clnt->cl_chatty)
+				printk("%s: RPC call returned error %d\n",
+						clnt->cl_protname, -status);
+			rpc_exit(task, status);
 	}
 }
 
@@ -1826,7 +1826,7 @@ call_status(struct rpc_task *task)
  * 	We do not release the request slot, so we keep using the
  *	same XID for all retransmits.
  */
-static void
+	static void
 call_timeout(struct rpc_task *task)
 {
 	struct rpc_clnt	*clnt = task->tk_client;
@@ -1846,12 +1846,10 @@ call_timeout(struct rpc_task *task)
 	if (RPC_IS_SOFT(task)) {
 		if (clnt->cl_chatty)
 			rcu_read_lock();
-
 		printk(KERN_NOTICE "%s: server %s not responding, timed out\n",
-			clnt->cl_protname,
-			rcu_dereference(clnt->cl_xprt)->servername);
+				clnt->cl_protname,
+				rcu_dereference(clnt->cl_xprt)->servername);
 		rcu_read_unlock();
-
 		if (task->tk_flags & RPC_TASK_TIMEOUT)
 			rpc_exit(task, -ETIMEDOUT);
 		else
@@ -1864,8 +1862,8 @@ call_timeout(struct rpc_task *task)
 		if (clnt->cl_chatty) {
 			rcu_read_lock();
 			printk(KERN_NOTICE "%s: server %s not responding, still trying\n",
-			clnt->cl_protname,
-			rcu_dereference(clnt->cl_xprt)->servername);
+					clnt->cl_protname,
+					rcu_dereference(clnt->cl_xprt)->servername);
 			rcu_read_unlock();
 		}
 	}
@@ -1885,7 +1883,7 @@ retry:
 /*
  * 7.	Decode the RPC reply
  */
-static void
+	static void
 call_decode(struct rpc_task *task)
 {
 	struct rpc_clnt	*clnt = task->tk_client;
@@ -1899,8 +1897,8 @@ call_decode(struct rpc_task *task)
 		if (clnt->cl_chatty) {
 			rcu_read_lock();
 			printk(KERN_NOTICE "%s: server %s OK\n",
-				clnt->cl_protname,
-				rcu_dereference(clnt->cl_xprt)->servername);
+					clnt->cl_protname,
+					rcu_dereference(clnt->cl_xprt)->servername);
 			rcu_read_unlock();
 		}
 		task->tk_flags &= ~RPC_CALL_MAJORSEEN;
@@ -1940,7 +1938,7 @@ call_decode(struct rpc_task *task)
 
 	if (decode) {
 		task->tk_status = rpcauth_unwrap_resp(task, decode, req, p,
-						      task->tk_msg.rpc_resp);
+				task->tk_msg.rpc_resp);
 	}
 	dprintk("RPC: %5u call_decode result %d\n", task->tk_pid,
 			task->tk_status);
@@ -1956,7 +1954,7 @@ out_retry:
 	}
 }
 
-static __be32 *
+	static __be32 *
 rpc_encode_header(struct rpc_task *task)
 {
 	struct rpc_clnt *clnt = task->tk_client;
@@ -1977,7 +1975,7 @@ rpc_encode_header(struct rpc_task *task)
 	return p;
 }
 
-static __be32 *
+	static __be32 *
 rpc_verify_header(struct rpc_task *task)
 {
 	struct rpc_clnt *clnt = task->tk_client;
@@ -1994,8 +1992,8 @@ rpc_verify_header(struct rpc_task *task)
 		 *   undefined results
 		 */
 		dprintk("RPC: %5u %s: XDR representation not a multiple of"
-		       " 4 bytes: 0x%x\n", task->tk_pid, __func__,
-		       task->tk_rqstp->rq_rcv_buf.len);
+				" 4 bytes: 0x%x\n", task->tk_pid, __func__,
+				task->tk_rqstp->rq_rcv_buf.len);
 		goto out_eio;
 	}
 	if ((len -= 3) < 0)
@@ -2004,7 +2002,7 @@ rpc_verify_header(struct rpc_task *task)
 	p += 1; /* skip XID */
 	if ((n = ntohl(*p++)) != RPC_REPLY) {
 		dprintk("RPC: %5u %s: not an RPC reply: %x\n",
-			task->tk_pid, __func__, n);
+				task->tk_pid, __func__, n);
 		goto out_garbage;
 	}
 
@@ -2012,57 +2010,57 @@ rpc_verify_header(struct rpc_task *task)
 		if (--len < 0)
 			goto out_overflow;
 		switch ((n = ntohl(*p++))) {
-		case RPC_AUTH_ERROR:
-			break;
-		case RPC_MISMATCH:
-			dprintk("RPC: %5u %s: RPC call version mismatch!\n",
-				task->tk_pid, __func__);
-			error = -EPROTONOSUPPORT;
-			goto out_err;
-		default:
-			dprintk("RPC: %5u %s: RPC call rejected, "
-				"unknown error: %x\n",
-				task->tk_pid, __func__, n);
-			goto out_eio;
+			case RPC_AUTH_ERROR:
+				break;
+			case RPC_MISMATCH:
+				dprintk("RPC: %5u %s: RPC call version mismatch!\n",
+						task->tk_pid, __func__);
+				error = -EPROTONOSUPPORT;
+				goto out_err;
+			default:
+				dprintk("RPC: %5u %s: RPC call rejected, "
+						"unknown error: %x\n",
+						task->tk_pid, __func__, n);
+				goto out_eio;
 		}
 		if (--len < 0)
 			goto out_overflow;
 		switch ((n = ntohl(*p++))) {
-		case RPC_AUTH_REJECTEDCRED:
-		case RPC_AUTH_REJECTEDVERF:
-		case RPCSEC_GSS_CREDPROBLEM:
-		case RPCSEC_GSS_CTXPROBLEM:
-			if (!task->tk_cred_retry)
+			case RPC_AUTH_REJECTEDCRED:
+			case RPC_AUTH_REJECTEDVERF:
+			case RPCSEC_GSS_CREDPROBLEM:
+			case RPCSEC_GSS_CTXPROBLEM:
+				if (!task->tk_cred_retry)
+					break;
+				task->tk_cred_retry--;
+				dprintk("RPC: %5u %s: retry stale creds\n",
+						task->tk_pid, __func__);
+				rpcauth_invalcred(task);
+				/* Ensure we obtain a new XID! */
+				xprt_release(task);
+				task->tk_action = call_reserve;
+				goto out_retry;
+			case RPC_AUTH_BADCRED:
+			case RPC_AUTH_BADVERF:
+				/* possibly garbled cred/verf? */
+				if (!task->tk_garb_retry)
+					break;
+				task->tk_garb_retry--;
+				dprintk("RPC: %5u %s: retry garbled creds\n",
+						task->tk_pid, __func__);
+				task->tk_action = call_bind;
+				goto out_retry;
+			case RPC_AUTH_TOOWEAK:
+				rcu_read_lock();
+				printk(KERN_NOTICE "RPC: server %s requires stronger "
+						"authentication.\n",
+						rcu_dereference(clnt->cl_xprt)->servername);
+				rcu_read_unlock();
 				break;
-			task->tk_cred_retry--;
-			dprintk("RPC: %5u %s: retry stale creds\n",
-					task->tk_pid, __func__);
-			rpcauth_invalcred(task);
-			/* Ensure we obtain a new XID! */
-			xprt_release(task);
-			task->tk_action = call_reserve;
-			goto out_retry;
-		case RPC_AUTH_BADCRED:
-		case RPC_AUTH_BADVERF:
-			/* possibly garbled cred/verf? */
-			if (!task->tk_garb_retry)
-				break;
-			task->tk_garb_retry--;
-			dprintk("RPC: %5u %s: retry garbled creds\n",
-					task->tk_pid, __func__);
-			task->tk_action = call_bind;
-			goto out_retry;
-		case RPC_AUTH_TOOWEAK:
-			rcu_read_lock();
-			printk(KERN_NOTICE "RPC: server %s requires stronger "
-			       "authentication.\n",
-			       rcu_dereference(clnt->cl_xprt)->servername);
-			rcu_read_unlock();
-			break;
-		default:
-			dprintk("RPC: %5u %s: unknown auth error: %x\n",
-					task->tk_pid, __func__, n);
-			error = -EIO;
+			default:
+				dprintk("RPC: %5u %s: unknown auth error: %x\n",
+						task->tk_pid, __func__, n);
+				error = -EIO;
 		}
 		dprintk("RPC: %5u %s: call rejected %d\n",
 				task->tk_pid, __func__, n);
@@ -2077,40 +2075,40 @@ rpc_verify_header(struct rpc_task *task)
 	if (len < 0)
 		goto out_overflow;
 	switch ((n = ntohl(*p++))) {
-	case RPC_SUCCESS:
-		return p;
-	case RPC_PROG_UNAVAIL:
-		dprintk_rcu("RPC: %5u %s: program %u is unsupported "
-				"by server %s\n", task->tk_pid, __func__,
-				(unsigned int)clnt->cl_prog,
-				rcu_dereference(clnt->cl_xprt)->servername);
-		error = -EPFNOSUPPORT;
-		goto out_err;
-	case RPC_PROG_MISMATCH:
-		dprintk_rcu("RPC: %5u %s: program %u, version %u unsupported "
-				"by server %s\n", task->tk_pid, __func__,
-				(unsigned int)clnt->cl_prog,
-				(unsigned int)clnt->cl_vers,
-				rcu_dereference(clnt->cl_xprt)->servername);
-		error = -EPROTONOSUPPORT;
-		goto out_err;
-	case RPC_PROC_UNAVAIL:
-		dprintk_rcu("RPC: %5u %s: proc %s unsupported by program %u, "
-				"version %u on server %s\n",
-				task->tk_pid, __func__,
-				rpc_proc_name(task),
-				clnt->cl_prog, clnt->cl_vers,
-				rcu_dereference(clnt->cl_xprt)->servername);
-		error = -EOPNOTSUPP;
-		goto out_err;
-	case RPC_GARBAGE_ARGS:
-		dprintk("RPC: %5u %s: server saw garbage\n",
-				task->tk_pid, __func__);
-		break;			/* retry */
-	default:
-		dprintk("RPC: %5u %s: server accept status: %x\n",
-				task->tk_pid, __func__, n);
-		/* Also retry */
+		case RPC_SUCCESS:
+			return p;
+		case RPC_PROG_UNAVAIL:
+			dprintk_rcu("RPC: %5u %s: program %u is unsupported "
+					"by server %s\n", task->tk_pid, __func__,
+					(unsigned int)clnt->cl_prog,
+					rcu_dereference(clnt->cl_xprt)->servername);
+			error = -EPFNOSUPPORT;
+			goto out_err;
+		case RPC_PROG_MISMATCH:
+			dprintk_rcu("RPC: %5u %s: program %u, version %u unsupported "
+					"by server %s\n", task->tk_pid, __func__,
+					(unsigned int)clnt->cl_prog,
+					(unsigned int)clnt->cl_vers,
+					rcu_dereference(clnt->cl_xprt)->servername);
+			error = -EPROTONOSUPPORT;
+			goto out_err;
+		case RPC_PROC_UNAVAIL:
+			dprintk_rcu("RPC: %5u %s: proc %s unsupported by program %u, "
+					"version %u on server %s\n",
+					task->tk_pid, __func__,
+					rpc_proc_name(task),
+					clnt->cl_prog, clnt->cl_vers,
+					rcu_dereference(clnt->cl_xprt)->servername);
+			error = -EOPNOTSUPP;
+			goto out_err;
+		case RPC_GARBAGE_ARGS:
+			dprintk("RPC: %5u %s: server saw garbage\n",
+					task->tk_pid, __func__);
+			break;			/* retry */
+		default:
+			dprintk("RPC: %5u %s: server accept status: %x\n",
+					task->tk_pid, __func__, n);
+			/* Also retry */
 	}
 
 out_garbage:
@@ -2182,11 +2180,11 @@ EXPORT_SYMBOL_GPL(rpc_call_null);
 static void rpc_show_header(void)
 {
 	printk(KERN_INFO "-pid- flgs status -client- --rqstp- "
-		"-timeout ---ops--\n");
+			"-timeout ---ops--\n");
 }
 
 static void rpc_show_task(const struct rpc_clnt *clnt,
-			  const struct rpc_task *task)
+		const struct rpc_task *task)
 {
 	const char *rpc_waitq = "none";
 
@@ -2194,10 +2192,10 @@ static void rpc_show_task(const struct rpc_clnt *clnt,
 		rpc_waitq = rpc_qname(task->tk_waitqueue);
 
 	printk(KERN_INFO "%5u %04x %6d %8p %8p %8ld %8p %sv%u %s a:%ps q:%s\n",
-		task->tk_pid, task->tk_flags, task->tk_status,
-		clnt, task->tk_rqstp, task->tk_timeout, task->tk_ops,
-		clnt->cl_protname, clnt->cl_vers, rpc_proc_name(task),
-		task->tk_action, rpc_waitq);
+			task->tk_pid, task->tk_flags, task->tk_status,
+			clnt, task->tk_rqstp, task->tk_timeout, task->tk_ops,
+			clnt->cl_protname, clnt->cl_vers, rpc_proc_name(task),
+			task->tk_action, rpc_waitq);
 }
 
 void rpc_show_tasks(struct net *net)

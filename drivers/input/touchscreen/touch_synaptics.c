@@ -466,7 +466,6 @@ static int read_page_description_table(struct i2c_client* client)
 
 int get_ic_info(struct synaptics_ts_data* ts, struct touch_fw_info* fw_info)
 {
-	struct touch_platform_data *pdata = ts->pdata;
 #if defined(ARRAYED_TOUCH_FW_BIN)
 	int cnt;
 #endif
@@ -512,28 +511,20 @@ int get_ic_info(struct synaptics_ts_data* ts, struct touch_fw_info* fw_info)
 		strncpy(fw_info->fw_image_product_id,
 				&SynaFirmware[cnt][FW_OFFSET_PRODUCT_ID], 10);
 		if (!(strncmp(fw_info->product_id,
-				fw_info->fw_image_product_id, 10))) {
-			fw_info->fw_start = (unsigned char *)&SynaFirmware[cnt][0];
-			fw_info->fw_size = sizeof(SynaFirmware[0]);
+				fw_info->fw_image_product_id, 10)))
 			break;
-		}
 	}
+	fw_info->fw_start = (unsigned char *)&SynaFirmware[cnt][0];
+	fw_info->fw_size = sizeof(SynaFirmware[0]);
 #else
 	fw_info->fw_start = (unsigned char *)&SynaFirmware[0];
 	fw_info->fw_size = sizeof(SynaFirmware);
 #endif
 
-	if (fw_info->fw_start == 0) {
-		TOUCH_INFO_MSG("No firmware found for touch controller, assuming no pressure");
-		pdata->caps->is_pressure_supported = 0;
-		strncpy(fw_info->fw_image_product_id, "UNKNOWN", 10);
-		strncpy(fw_info->fw_image_version, "UNK", 4);
-	} else {
-		strncpy(fw_info->fw_image_product_id,
-			&fw_info->fw_start[FW_OFFSET_PRODUCT_ID], 10);
-		strncpy(fw_info->fw_image_version,
-			&fw_info->fw_start[FW_OFFSET_IMAGE_VERSION], 4);
-	}
+	strncpy(fw_info->fw_image_product_id,
+				&fw_info->fw_start[FW_OFFSET_PRODUCT_ID], 10);
+	strncpy(fw_info->fw_image_version,
+					&fw_info->fw_start[FW_OFFSET_IMAGE_VERSION],4);
 
 	if (unlikely(touch_i2c_read(ts->client, FLASH_CONTROL_REG,
 				sizeof(flash_control), &flash_control) < 0)) {
@@ -1057,9 +1048,6 @@ int synaptics_ts_ic_ctrl(struct i2c_client *client, u8 code, u16 value)
 			TOUCH_ERR_MSG("IC Reset command write fail\n");
 			return -EIO;
 		}
-
-		msleep(10);
-
 		break;
 	case IC_CTRL_CHARGER:
 		if (touch_i2c_read(client, DEVICE_CONTROL_REG, 1, &buf) < 0) {
@@ -1076,6 +1064,7 @@ int synaptics_ts_ic_ctrl(struct i2c_client *client, u8 code, u16 value)
 				TOUCH_ERR_MSG("IC Reset command write fail\n");
 				return -EIO;
 			}
+			TOUCH_INFO_MSG("CHARGER = %d\n", !!value);
 		}
 
 		break;
@@ -1088,11 +1077,6 @@ int synaptics_ts_ic_ctrl(struct i2c_client *client, u8 code, u16 value)
 
 int synaptics_ts_fw_upgrade_check(struct lge_touch_data *ts)
 {
-	if (ts->fw_info.fw_start == 0) {
-		TOUCH_INFO_MSG("DO NOT UPDATE device has no firmware\n");
-		return -1;
-	}
-
 	if (ts->fw_info.fw_force_rework || ts->fw_upgrade.fw_force_upgrade) {
 		TOUCH_INFO_MSG("FW-upgrade Force Rework.\n");
 	} else {

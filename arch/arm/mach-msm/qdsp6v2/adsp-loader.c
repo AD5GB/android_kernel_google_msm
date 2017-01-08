@@ -187,7 +187,7 @@ static int adsp_loader_remove(struct platform_device *pdev)
 }
 
 
-/* UNUSED
+/* RDD - unused?
 static const struct of_device_id adsp_loader_dt_match[] = {
 	{ .compatible = "qcom,adsp-loader" },
 	{ }

@@ -104,6 +104,13 @@
 /*----------------------------------------------------------------------------
  *  External declarations for global context 
  * -------------------------------------------------------------------------*/
+#if 1
+//*BT-AMP packet LLC OUI value*/
+/* RDD - unused.  Who does this shit?
+static const v_U8_t WLANBAP_BT_AMP_OUI[] =  {0x00, 0x19, 0x58 };
+*/
+
+#endif
 
 /*----------------------------------------------------------------------------
  * Static Variable Definitions

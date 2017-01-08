@@ -195,10 +195,10 @@ void local_bh_enable_ip(unsigned long ip)
 EXPORT_SYMBOL(local_bh_enable_ip);
 
 /*
- * We restart softirq processing for at most 2 ms,
+ * We restart softirq processing for at most 2 ms, 
  * and if need_resched() is not set.
  *
- * These limits have been established via experimentation.
+ * These limits have been established via experimentation. 
  * The two things to balance is latency against fairness -
  * we want to handle softirqs as soon as possible, but they
  * should not be able to lock up the box.
@@ -745,13 +745,9 @@ static void run_ksoftirqd(unsigned int cpu)
 	local_irq_disable();
 	if (local_softirq_pending()) {
 		__do_softirq();
+		rcu_note_context_switch(cpu);
 		local_irq_enable();
 		cond_resched();
-
-		preempt_disable();
-		rcu_note_context_switch(cpu);
-		preempt_enable();
-
 		return;
 	}
 	local_irq_enable();

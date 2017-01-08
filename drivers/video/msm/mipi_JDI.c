@@ -308,9 +308,8 @@ static void JDI_command_cabc(struct platform_device *pdev)
 
 	pr_debug("%s: cabc cmd %d\n", __func__, write_cabc[1]);
 
-	if (!mdp_panel_is_power_on(mfd->suspend.panel_power_state)) {
+	if (!mdp_panel_is_power_on(mfd->suspend.panel_power_state))
 		return;
-	}
 
 	/* mdp4_dsi_cmd_busy_wait: will turn on dsi clock also */
 	mipi_dsi_mdp_busy_wait();
@@ -379,7 +378,7 @@ static void mipi_JDI_set_backlight(struct msm_fb_data_type *mfd)
 			}
 
 			if (!bl_enable_sleep_control) {
-				usleep(10000);
+				msleep_interruptible(10);
 				bl_enable_sleep_control = 1;
 				pr_info("%s: pwm enable\n", __func__);
 			}
@@ -387,7 +386,7 @@ static void mipi_JDI_set_backlight(struct msm_fb_data_type *mfd)
 		} else {
 			gpio_set_value_cansleep(gpio_LCD_BL_EN, 0);
 			if (bl_enable_sleep_control) {
-				usleep(10000);
+				msleep_interruptible(10);
 				bl_enable_sleep_control = 0;
 				pr_info("%s: pwm disable\n", __func__);
 			}
@@ -433,7 +432,7 @@ static void mipi_JDI_set_recovery_backlight(struct msm_fb_data_type *mfd)
 						recovery_backlight);
 			}
 
-			usleep(10000);
+			msleep_interruptible(10);
 			gpio_set_value_cansleep(gpio_LCD_BL_EN, 1);
 		}
 		mipi_JDI_pdata->set_recovery_bl_done = 1;
@@ -441,10 +440,24 @@ static void mipi_JDI_set_recovery_backlight(struct msm_fb_data_type *mfd)
 }
 static void mipi_JDI_lcd_shutdown(void)
 {
+	int ret;
+
 	pr_info("%s+\n", __func__);
 
 	gpio_set_value_cansleep(gpio_LCD_BL_EN, 0);
-	usleep(10000);
+	msleep_interruptible(10);
+
+	pr_info("%s: backlight off\n", __func__);
+	if (hw_revision == HW_REV_D || hw_revision == HW_REV_E)
+		JDI_command_backlight(0);
+	else {
+		if (bl_lpm) {
+			ret = pwm_config(bl_lpm, 0, PWM_PERIOD_USEC);
+			if (ret)
+				pr_err("pwm_config failed %d\n", ret);
+			pwm_disable(bl_lpm);
+		}
+	}
 
 	pr_info("%s, JDI display off command+\n", __func__);
 	cmdreq_JDI.cmds = JDI_display_off_cmds;
@@ -456,11 +469,11 @@ static void mipi_JDI_lcd_shutdown(void)
 	pr_info("%s, JDI display off command-\n", __func__);
 
 	pr_info("%s: power gpio off\n", __func__);
-	usleep(20000);
+	msleep(20);
 	gpio_set_value_cansleep(gpio_EN_VDD_BL, 0);
-	usleep(20000);
+	msleep(20);
 	gpio_set_value_cansleep(gpio_LCM_XRES, 0);
-	usleep(8000);
+	msleep_interruptible(8);
 
 	pr_info("%s-\n", __func__);
 }

@@ -1404,6 +1404,9 @@ fw_update_finish:
 #ifdef TOUCH_STRESS_TEST
 static void  stress_poll_data(struct work_struct * work)
 {
+	/* Function returns an int 
+	bool status;
+	*/
 	int status;
 	u8 count[7];
 	status = elan_ktf3k_ts_recv_data(private_ts->client, count, 7);
