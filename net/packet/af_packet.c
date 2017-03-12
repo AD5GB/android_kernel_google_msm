@@ -3118,19 +3118,19 @@ packet_setsockopt(struct socket *sock, int level, int optname, char __user *optv
 					case TPACKET_V1:
 					case TPACKET_V2:
 					case TPACKET_V3:
-						break;
+			break;
 					default:
 						return -EINVAL;
 				}
-				lock_sock(sk);
-				if (po->rx_ring.pg_vec || po->tx_ring.pg_vec) {
-					ret = -EBUSY;
-				} else {
-					po->tp_version = val;
-					ret = 0;
-				}
-				release_sock(sk);
-				return ret;
+		lock_sock(sk);
+		if (po->rx_ring.pg_vec || po->tx_ring.pg_vec) {
+			ret = -EBUSY;
+		} else {
+			po->tp_version = val;
+			ret = 0;
+		}
+		release_sock(sk);
+		return ret;
 			}
 		case PACKET_RESERVE:
 			{

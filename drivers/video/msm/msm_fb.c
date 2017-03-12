@@ -278,8 +278,8 @@ int msm_fb_detect_client(const char *name)
 }
 
 static ssize_t msm_fb_set_cabc(struct device *dev,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
+				struct device_attribute *attr,
+				const char *buf, size_t count)
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
@@ -302,7 +302,7 @@ static ssize_t msm_fb_set_cabc(struct device *dev,
 }
 
 static ssize_t msm_fb_get_cabc(struct device *dev,
-		struct device_attribute *attr, char *buf)
+				  struct device_attribute *attr, char *buf)
 {
 	ssize_t ret = 0;
 	struct fb_info *fbi = dev_get_drvdata(dev);
@@ -310,15 +310,15 @@ static ssize_t msm_fb_get_cabc(struct device *dev,
 	struct msm_fb_panel_data *pdata =
 		(struct msm_fb_panel_data *)mfd->pdev->dev.platform_data;
 
-	if (pdata->get_cabc)
-		ret = snprintf(buf, PAGE_SIZE, "%d\n", pdata->get_cabc(mfd->pdev));
+    if (pdata->get_cabc)
+        ret = snprintf(buf, PAGE_SIZE, "%d\n", pdata->get_cabc(mfd->pdev));
 
-	return ret;
+    return ret;
 }
 
 static ssize_t msm_fb_set_sre(struct device *dev,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
+				struct device_attribute *attr,
+				const char *buf, size_t count)
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
@@ -341,7 +341,7 @@ static ssize_t msm_fb_set_sre(struct device *dev,
 }
 
 static ssize_t msm_fb_get_sre(struct device *dev,
-		struct device_attribute *attr, char *buf)
+				  struct device_attribute *attr, char *buf)
 {
 	ssize_t ret = 0;
 	struct fb_info *fbi = dev_get_drvdata(dev);
@@ -356,8 +356,8 @@ static ssize_t msm_fb_get_sre(struct device *dev,
 }
 
 static ssize_t msm_fb_set_aco(struct device *dev,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
+				struct device_attribute *attr,
+				const char *buf, size_t count)
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
@@ -380,7 +380,7 @@ static ssize_t msm_fb_set_aco(struct device *dev,
 }
 
 static ssize_t msm_fb_get_aco(struct device *dev,
-		struct device_attribute *attr, char *buf)
+				  struct device_attribute *attr, char *buf)
 {
 	ssize_t ret = 0;
 	struct fb_info *fbi = dev_get_drvdata(dev);
@@ -492,8 +492,8 @@ static ssize_t mdp_get_rgb(struct device *dev,
  * http://www.vendian.org/mncharity/dir3/blackbody/UnstableURLs/bbr_color.html
  */
 static ssize_t mdp_set_rgb(struct device *dev,
-		struct device_attribute *attr,
-		const char *buf, size_t count)
+               struct device_attribute *attr,
+               const char *buf, size_t count)
 {
 	uint32_t r = 0, g = 0, b = 0;
 	struct mdp_pcc_cfg_data pcc_cfg;
@@ -534,7 +534,7 @@ static DEVICE_ATTR(msm_fb_type, S_IRUGO, msm_fb_msm_fb_type, NULL);
 static DEVICE_ATTR(msm_fb_fps_level, S_IRUGO | S_IWUSR | S_IWGRP, NULL, \
 		msm_fb_fps_level_change);
 static DEVICE_ATTR(rgb, S_IRUGO | S_IWUSR | S_IWGRP, mdp_get_rgb, \
-		mdp_set_rgb);
+				mdp_set_rgb);
 static DEVICE_ATTR(cabc, S_IRUGO | S_IWUSR | S_IWGRP, msm_fb_get_cabc, msm_fb_set_cabc);
 static DEVICE_ATTR(sre, S_IRUGO | S_IWUSR | S_IWGRP, msm_fb_get_sre, msm_fb_set_sre);
 static DEVICE_ATTR(aco, S_IRUGO | S_IWUSR | S_IWGRP, msm_fb_get_aco, msm_fb_set_aco);
@@ -1171,11 +1171,11 @@ static int msm_fb_blank_sub(int blank_mode, struct fb_info *info,
 
 	switch (blank_mode) {
 		case FB_BLANK_UNBLANK:
-			if (mdp_fb_is_power_off(mfd)) {
+		if (mdp_fb_is_power_off(mfd)) {
 				ret = pdata->on(mfd->pdev);
 				if (ret == 0) {
 					down(&mfd->sem);
-					mfd->panel_power_state = MDP_PANEL_POWER_ON;
+				mfd->panel_power_state = MDP_PANEL_POWER_ON;
 					up(&mfd->sem);
 					mfd->panel_driver_on = mfd->op_enable;
 				}
@@ -1183,30 +1183,30 @@ static int msm_fb_blank_sub(int blank_mode, struct fb_info *info,
 			break;
 
 		case FB_BLANK_VSYNC_SUSPEND:
-			req_power_state = MDP_PANEL_POWER_DOZE;
-			if (mdp_fb_is_power_off(mfd)) {
-				ret = pdata->on(mfd->pdev);
-				if (ret == 0) {
-					down(&mfd->sem);
-					mfd->panel_power_state = MDP_PANEL_POWER_ON;
-					up(&mfd->sem);
-					mfd->panel_driver_on = mfd->op_enable;
-				}
+	req_power_state = MDP_PANEL_POWER_DOZE;
+		if (mdp_fb_is_power_off(mfd)) {
+			ret = pdata->on(mfd->pdev);
+			if (ret == 0) {
+				down(&mfd->sem);
+				mfd->panel_power_state = MDP_PANEL_POWER_ON;
+				up(&mfd->sem);
+				mfd->panel_driver_on = mfd->op_enable;
 			}
-			/* Continue to POWERDOWN to doze if no errors */
-			if (ret)
-				break;
+		}
+		/* Continue to POWERDOWN to doze if no errors */
+		if (ret)
+			break;
 
 		case FB_BLANK_HSYNC_SUSPEND:
 		case FB_BLANK_NORMAL:
 		case FB_BLANK_POWERDOWN:
 		default:
-			if (mdp_fb_is_power_on(mfd)) {
-				cur_power_state = mfd->panel_power_state;
+		if (mdp_fb_is_power_on(mfd)) {
+			cur_power_state = mfd->panel_power_state;
 
 				mfd->op_enable = FALSE;
 				down(&mfd->sem);
-				mfd->panel_power_state = req_power_state;
+			mfd->panel_power_state = req_power_state;
 				bl_updated = 0;
 				up(&mfd->sem);
 				cancel_delayed_work_sync(&mfd->backlight_worker);
@@ -1221,7 +1221,7 @@ static int msm_fb_blank_sub(int blank_mode, struct fb_info *info,
 
 				ret = pdata->off(mfd->pdev);
 				if (ret)
-					mfd->panel_power_state = cur_power_state;
+				mfd->panel_power_state = cur_power_state;
 
 				msm_fb_release_timeline(mfd);
 				mfd->op_enable = TRUE;
@@ -1344,15 +1344,15 @@ static int msm_fb_blank(int blank_mode, struct fb_info *info)
 				msleep(20);
 			}
 		} else if (blank_mode == FB_BLANK_VSYNC_SUSPEND) {
-			mfd->suspend.panel_power_state = MDP_PANEL_POWER_DOZE;
+ 			mfd->suspend.panel_power_state = MDP_PANEL_POWER_DOZE;
 			/* if unblank is called when system is in suspend,
-				wait for the system to resume */
+			wait for the system to resume */
 			while (mfd->suspend.op_suspend) {
 				pr_debug("waiting for system to resume\n");
 				msleep(20);
 			}
-		} else
-			mfd->suspend.panel_power_state = MDP_PANEL_POWER_OFF;
+ 		} else
+ 			mfd->suspend.panel_power_state = MDP_PANEL_POWER_OFF;
 	}
 	return msm_fb_blank_sub(blank_mode, info, mfd->op_enable);
 }
@@ -1864,7 +1864,7 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 					(u32 *) &mfd->op_enable);
 			msm_fb_debugfs_file_create(sub_dir, "panel_power_state",
 					(u32 *) &mfd->
-					panel_power_state);
+						   panel_power_state);
 			msm_fb_debugfs_file_create(sub_dir, "ref_cnt",
 					(u32 *) &mfd->ref_cnt);
 			msm_fb_debugfs_file_create(sub_dir, "fb_imgType",
@@ -2146,8 +2146,8 @@ static int msm_fb_pan_display_ex(struct fb_info *info,
 		if (mdp_fb_is_power_off(mfd)) {
 			/* suspended */
 			pr_err("%s,%d fb_%d panel type %d is suspended\n",
-					__func__, __LINE__, mfd->index,
-					mfd->panel.type);
+				__func__, __LINE__, mfd->index,
+				mfd->panel.type);
 			return -EPERM;
 		}
 	} else {
@@ -2212,7 +2212,7 @@ static void bl_workqueue_handler(struct work_struct *work)
 
 	down(&mfd->sem);
 	if ((pdata) && (pdata->set_backlight) && (!bl_updated)
-			&& (!mdp_fb_is_power_off(mfd))) {
+					&& (!mdp_fb_is_power_off(mfd))) {
 		msm_fb_scale_bl(mfd->panel_info.bl_max, &temp);
 		mfd->bl_level = temp;
 		pdata->set_backlight(mfd);
@@ -4263,7 +4263,7 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			return -EFAULT;
 #endif
 		case MSMFB_SUSPEND_SW_REFRESHER:
-			if (mdp_fb_is_power_off(mfd))
+		if (mdp_fb_is_power_off(mfd))
 				return -EPERM;
 
 			mfd->sw_refreshing_enable = FALSE;
@@ -4271,7 +4271,7 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			break;
 
 		case MSMFB_RESUME_SW_REFRESHER:
-			if (mdp_fb_is_power_off(mfd))
+		if (mdp_fb_is_power_off(mfd))
 				return -EPERM;
 
 			mfd->sw_refreshing_enable = TRUE;
@@ -4297,7 +4297,7 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			break;
 
 		case MSMFB_HISTOGRAM:
-			if (mdp_fb_is_power_off(mfd))
+		if (mdp_fb_is_power_off(mfd))
 				return -EPERM;
 
 			if (!mfd->do_histogram)
@@ -4311,7 +4311,7 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			break;
 
 		case MSMFB_HISTOGRAM_START:
-			if (mdp_fb_is_power_off(mfd))
+		if (mdp_fb_is_power_off(mfd))
 				return -EPERM;
 
 			if (!mfd->start_histogram)
